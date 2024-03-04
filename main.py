@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-df = pd.read_csv("company_data.csv")
+df = pd.read_csv("Files/proj_web/company_data.csv")
 X = df.drop(columns=["class"])
 y = df["class"]
 
@@ -97,5 +97,9 @@ plot(val)
 
 # plt.show()
 
-plt.savefig("Figures/Test.png")
+plt.savefig("Files/proj_web/Figures/Test.png")
+
+# from icecream import ic as ic
+
+# ic("hello")
 
