@@ -110,7 +110,13 @@ plt.figure(figsize=(8,4))
 # plt.savefig("Files/proj_web/Figures/tail_predictor.png")
 
 # m.plot(kind="barh", xlabel="Correlation", ylabel="Features", title= "Features that affect the prediction less")
-# plt.tight_layout()
-# plt.savefig("Files/proj_web/Figures/no_predictor.png")
 
-# plt.show()
+sorted_corr = corr_matrix["is_promoted"].abs().sort_values()
+median_values = corr_matrix.loc[sorted_corr.index[:5], "is_promoted"]
+median_based_on_values = median_values.median()
+median_values.plot(kind="barh", xlabel="Correlation", ylabel="Features", title= "Features that do 'no' or close to 'no effect' on predictions")
+
+plt.tight_layout()
+plt.savefig("Files/proj_web/Figures/no_predictor.png")
+
+plt.show()
