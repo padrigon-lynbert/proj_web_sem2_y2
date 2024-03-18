@@ -8,6 +8,7 @@ df = pd.read_csv("Files/proj_web/company_data.csv")
 X = df.drop(columns=["class"])
 y = df["class"]
 
+
 # One-hot encoding on categorical variables, split data
 X_encoded = pd.get_dummies(X)
 X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
@@ -22,17 +23,23 @@ model = LogisticRegression(class_weight='balanced')
 model.fit(X_train_scaled, y_train)
 
 # Make predictions on the testing data
+# Evaluate the model's performance
 y_pred = model.predict(X_test_scaled)
+
+accuracy = accuracy_score(y_test, y_pred)
+# print("Accuracy:", accuracy)
+
+c_report = classification_report(y_test, y_pred)
+# print("Classification Report:\n", c_report)
+
+c_matrix = confusion_matrix(y_test, y_pred)
+# print("Confusion Matrix:\n", c_matrix)
 
 # Count the number of individuals predicted to be promoted and not promoted
 promoted_count = sum(y_pred == ' >50K')
 not_promoted_count = sum(y_pred == ' <=50K')
 # print("predicted to be promoted:", promoted_count)
 # print("predicted not to be promoted:", not_promoted_count)
-
-
-
-
 
 
 # Retrieving coefficients from the logistic regression model
@@ -49,57 +56,61 @@ category, values = [], []
 for feature, coefficient in sorted_feature_coefficients:
     category.append(feature); values.append(round(float(coefficient), 2))
     
-sorted_feature_coefficients
-
-
-from matplotlib import pyplot as plt
-import matplotlib.colors as mcolors
-import numpy as np
-
-# plt.figure(figsize=(10,6))
-
-# for i, val in enumerate(values):
-#     if val > 0:
-#         color = (0, 1 - val/2.5, 0)
-#     else:
-#         color = (1 - abs(val/2.5), 0, 0)
-#     plt.barh(category[i], val, color=color)
-
-# plt.xlabel('Coefficient Value')
-# plt.ylabel('Feature')
-# plt.title('Coefficients of Features')
-# plt.savefig("Figures/Coefficient_of_features.png")
+# sorted_feature_coefficients
+    
 
 
 
 
 
-# import matplotlib.pyplot as plt
+promotion_mapping = {' <=50K': 0, ' >50K': 1}
+df['is_promoted'] = df['class'].map(promotion_mapping)
+# Drop the original 'class' column if no longer needed
+df.drop(columns=['class'], inplace=True)
+# Display the modified DataFrame
+# print(df.head())
 
-# plt.barh("To be Promoted", promoted_count, color='skyblue')
-# plt.barh("Not to be Promoted", not_promoted_count, color='pink')
-# plt.xlabel('Employee count')
-# # plt.ylabel('')
-# plt.title('')
-# plt.grid(True, linestyle='--', alpha=0.7)
+
+
+
+
+
+
+
+    
+
+categorical_cols = df.select_dtypes(include=['object']).columns
+df_encoded = pd.get_dummies(df, columns=categorical_cols)
+corr_matrix = df_encoded.corr()
+
+corr_matrix["is_promoted"].sort_values(ascending=False)
+# print(corr_matrix)
+
+h = corr_matrix["is_promoted"].sort_values(ascending=False).head()
+t = corr_matrix["is_promoted"].sort_values(ascending=False).tail()
+
+med = corr_matrix["is_promoted"].median()
+less_m = corr_matrix[corr_matrix["is_promoted"] < med]
+m = less_m["is_promoted"].sort_values(ascending=True).head()
+
+# print(f"{h} \n\n{t} \n\n{m}")
+print(m)
+
+# predictors figures
+import matplotlib.pyplot as plt
 # plt.tight_layout()
-# plt.savefig("Figures/Result.png")
+plt.figure(figsize=(8,4))
+# h.plot(kind="barh", xlabel="Correlation", ylabel="Features", title= "Top Correlated Features to promotion")
+# plt.tight_layout()
+# plt.savefig("Files/proj_web/Figures/head_predictor.png")
 
 
+# t.plot(kind="barh", xlabel="Correlation", ylabel="Features", title= "Top Correlated Features to 'no promotion'")
+# plt.tight_layout()
+# plt.savefig("Files/proj_web/Figures/tail_predictor.png")
 
-val = [1,2,3,6,4,5,2,2,7,4]
-test = [1,2,3,4,5,6,7,8,9,10]
-index = np.arange(len(test))
-
-plot = lambda data: plt.plot(index, data)
-
-plot(val)
+# m.plot(kind="barh", xlabel="Correlation", ylabel="Features", title= "Features that affect the prediction less")
+# plt.tight_layout()
+# plt.savefig("Files/proj_web/Figures/no_predictor.png")
 
 # plt.show()
-
-plt.savefig("Files/proj_web/Figures/Test.png")
-
-# from icecream import ic as ic
-
-# ic("hello")
-
